@@ -1,22 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { mockBlogPosts } from '../mock';
+import { blogAPI, handleAPIError } from '../services/api';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Separator } from '../components/ui/separator';
-import { ArrowLeft, Clock, Calendar, Tag, Share2 } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Tag, Share2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const BlogPost = () => {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
+  const [relatedPosts, setRelatedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Simulate API call
-    const foundPost = mockBlogPosts.find(p => p.slug === slug);
-    setPost(foundPost);
-    setLoading(false);
+    loadPost();
   }, [slug]);
+
+  const loadPost = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Load the main post
+      const postData = await blogAPI.getPostBySlug(slug);
+      setPost(postData);
+      
+      // Load related posts (same category, excluding current post)
+      const allPosts = await blogAPI.getPosts(postData.category);
+      const related = allPosts
+        .filter(p => p.id !== postData.id)
+        .slice(0, 2);
+      setRelatedPosts(related);
+      
+    } catch (error) {
+      console.error('Error loading post:', error);
+      if (error.response?.status === 404) {
+        setError('Yazı bulunamadı');
+      } else {
+        setError(handleAPIError(error, 'Yazı yüklenirken bir hata oluştu'));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleShare = () => {
     if (navigator.share && post) {
@@ -28,27 +56,29 @@ const BlogPost = () => {
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      // You could show a toast here
+      toast.success('Sayfa bağlantısı panoya kopyalandı!');
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-800 mx-auto mb-4"></div>
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-slate-800 mx-auto" />
           <p className="text-slate-600">Yazı yükleniyor...</p>
         </div>
       </div>
     );
   }
 
-  if (!post) {
+  if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-slate-800">Yazı Bulunamadı</h1>
-          <p className="text-slate-600">Aradığınız yazı mevcut değil.</p>
+          <h1 className="text-2xl font-bold text-slate-800">
+            {error === 'Yazı bulunamadı' ? 'Yazı Bulunamadı' : 'Hata Oluştu'}
+          </h1>
+          <p className="text-slate-600">{error}</p>
           <Link to="/">
             <Button className="bg-slate-800 hover:bg-slate-700">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -58,6 +88,10 @@ const BlogPost = () => {
         </div>
       </div>
     );
+  }
+
+  if (!post) {
+    return null;
   }
 
   return (
@@ -129,26 +163,26 @@ const BlogPost = () => {
             <Separator className="my-8" />
 
             {/* Tags */}
-            <div className="flex items-center flex-wrap gap-2">
-              <Tag className="h-4 w-4 text-slate-500" />
-              <span className="text-sm font-medium text-slate-700 mr-2">Etiketler:</span>
-              {post.tags.map((tag) => (
-                <Badge key={tag} variant="outline" className="text-xs border-slate-300 text-slate-600">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex items-center flex-wrap gap-2">
+                <Tag className="h-4 w-4 text-slate-500" />
+                <span className="text-sm font-medium text-slate-700 mr-2">Etiketler:</span>
+                {post.tags.map((tag) => (
+                  <Badge key={tag} variant="outline" className="text-xs border-slate-300 text-slate-600">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         </article>
 
         {/* Related Posts Section */}
-        <section className="mt-12">
-          <h2 className="text-2xl font-bold text-slate-800 mb-6">İlgili Yazılar</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {mockBlogPosts
-              .filter(p => p.id !== post.id && p.category === post.category)
-              .slice(0, 2)
-              .map((relatedPost) => (
+        {relatedPosts.length > 0 && (
+          <section className="mt-12">
+            <h2 className="text-2xl font-bold text-slate-800 mb-6">İlgili Yazılar</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {relatedPosts.map((relatedPost) => (
                 <Link
                   key={relatedPost.id}
                   to={`/post/${relatedPost.slug}`}
@@ -169,8 +203,9 @@ const BlogPost = () => {
                   </div>
                 </Link>
               ))}
-          </div>
-        </section>
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
