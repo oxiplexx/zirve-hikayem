@@ -59,8 +59,8 @@ async def root():
 # Blog Posts Endpoints
 @api_router.get("/posts", response_model=List[BlogPost])
 async def get_posts(
-    category: Optional[str] = Query(None, description="Filter posts by category"),
-    featured: Optional[bool] = Query(None, description="Get only featured posts")
+    category: Optional[str] = None,
+    featured: Optional[bool] = None
 ):
     """Get all blog posts with optional filtering"""
     try:
