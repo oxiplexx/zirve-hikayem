@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { mockBlogPosts } from '../mock';
+import { blogAPI, handleAPIError } from '../services/api';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -10,12 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Switch } from '../components/ui/switch';
 import { toast } from 'sonner';
-import { Plus, Edit3, Trash2, Save, X, Eye } from 'lucide-react';
+import { Plus, Edit3, Trash2, Save, X, Eye, Loader2 } from 'lucide-react';
 
 const AdminPage = () => {
-  const [posts, setPosts] = useState(mockBlogPosts);
+  const [posts, setPosts] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     excerpt: '',
@@ -26,6 +28,23 @@ const AdminPage = () => {
   });
 
   const categories = ['Girişimcilik', 'Kişisel Gelişim', 'Motivasyon', 'Yaşam Tarzı', 'Planlama'];
+
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
+  const loadPosts = async () => {
+    try {
+      setLoading(true);
+      const postsData = await blogAPI.getPosts();
+      setPosts(postsData);
+    } catch (error) {
+      console.error('Error loading posts:', error);
+      toast.error(handleAPIError(error, 'Yazılar yüklenirken bir hata oluştu'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -42,32 +61,41 @@ const AdminPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const newPost = {
-      id: editingPost ? editingPost.id : Date.now(),
-      title: formData.title,
-      slug: formData.title.toLowerCase().replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ0-9\s]/g, '').replace(/\s+/g, '-'),
-      excerpt: formData.excerpt,
-      content: formData.content.replace(/\n/g, '<br>'),
-      author: 'Zirve Hikayem',
-      publishDate: new Date().toISOString().split('T')[0],
-      category: formData.category,
-      tags: formData.tags.split(',').map(tag => tag.trim()),
-      readTime: Math.ceil(formData.content.split(' ').length / 200) + ' dakika',
-      featured: formData.featured
-    };
+    try {
+      setSubmitting(true);
+      
+      const postData = {
+        title: formData.title,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        category: formData.category,
+        tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        featured: formData.featured
+      };
 
-    if (editingPost) {
-      setPosts(prev => prev.map(post => post.id === editingPost.id ? newPost : post));
-      toast.success('Yazı başarıyla güncellendi!');
-    } else {
-      setPosts(prev => [newPost, ...prev]);
-      toast.success('Yeni yazı başarıyla eklendi!');
+      if (editingPost) {
+        // Update existing post
+        await blogAPI.updatePost(editingPost.id, postData);
+        toast.success('Yazı başarıyla güncellendi!');
+      } else {
+        // Create new post
+        await blogAPI.createPost(postData);
+        toast.success('Yeni yazı başarıyla eklendi!');
+      }
+
+      // Reload posts and reset form
+      await loadPosts();
+      resetForm();
+      
+    } catch (error) {
+      console.error('Error saving post:', error);
+      toast.error(handleAPIError(error, 'Yazı kaydedilirken bir hata oluştu'));
+    } finally {
+      setSubmitting(false);
     }
-
-    resetForm();
   };
 
   const resetForm = () => {
@@ -96,12 +124,29 @@ const AdminPage = () => {
     setIsCreating(true);
   };
 
-  const handleDelete = (postId) => {
-    if (window.confirm('Bu yazıyı silmek istediğinizden emin misiniz?')) {
-      setPosts(prev => prev.filter(post => post.id !== postId));
-      toast.success('Yazı başarıyla silindi!');
+  const handleDelete = async (post) => {
+    if (window.confirm(`"${post.title}" yazısını silmek istediğinizden emin misiniz?`)) {
+      try {
+        await blogAPI.deletePost(post.id);
+        toast.success('Yazı başarıyla silindi!');
+        await loadPosts();
+      } catch (error) {
+        console.error('Error deleting post:', error);
+        toast.error(handleAPIError(error, 'Yazı silinirken bir hata oluştu'));
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-slate-800 mx-auto" />
+          <p className="text-slate-600">Admin paneli yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -123,7 +168,10 @@ const AdminPage = () => {
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold text-slate-800">Tüm Yazılar ({posts.length})</h2>
               <Button 
-                onClick={() => setIsCreating(true)}
+                onClick={() => {
+                  resetForm();
+                  setIsCreating(true);
+                }}
                 className="bg-slate-800 hover:bg-slate-700"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -154,7 +202,7 @@ const AdminPage = () => {
                         <div className="flex items-center space-x-4 text-xs text-slate-500">
                           <span>{post.publishDate}</span>
                           <span>{post.readTime}</span>
-                          <span>{post.tags.length} etiket</span>
+                          <span>{post.tags?.length || 0} etiket</span>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2 ml-4">
@@ -177,7 +225,7 @@ const AdminPage = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(post.id)}
+                          onClick={() => handleDelete(post)}
                           className="text-red-600 hover:text-red-800"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -210,6 +258,7 @@ const AdminPage = () => {
                       value={formData.title}
                       onChange={handleInputChange}
                       required
+                      disabled={submitting}
                       placeholder="Yazı başlığını girin"
                       className="border-slate-300 focus:border-slate-500"
                     />
@@ -223,6 +272,7 @@ const AdminPage = () => {
                       value={formData.excerpt}
                       onChange={handleInputChange}
                       required
+                      disabled={submitting}
                       placeholder="Yazının kısa bir özetini girin"
                       rows={3}
                       className="border-slate-300 focus:border-slate-500 resize-none"
@@ -232,9 +282,14 @@ const AdminPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="category">Kategori *</Label>
-                      <Select name="category" value={formData.category} onValueChange={(value) => 
-                        setFormData(prev => ({ ...prev, category: value }))
-                      }>
+                      <Select 
+                        name="category" 
+                        value={formData.category} 
+                        onValueChange={(value) => 
+                          setFormData(prev => ({ ...prev, category: value }))
+                        }
+                        disabled={submitting}
+                      >
                         <SelectTrigger className="border-slate-300">
                           <SelectValue placeholder="Kategori seçin" />
                         </SelectTrigger>
@@ -255,6 +310,7 @@ const AdminPage = () => {
                         name="tags"
                         value={formData.tags}
                         onChange={handleInputChange}
+                        disabled={submitting}
                         placeholder="etiket1, etiket2, etiket3"
                         className="border-slate-300 focus:border-slate-500"
                       />
@@ -267,6 +323,7 @@ const AdminPage = () => {
                       id="featured"
                       checked={formData.featured}
                       onCheckedChange={handleSwitchChange}
+                      disabled={submitting}
                     />
                     <Label htmlFor="featured">Öne çıkan yazı olarak işaretle</Label>
                   </div>
@@ -279,6 +336,7 @@ const AdminPage = () => {
                       value={formData.content}
                       onChange={handleInputChange}
                       required
+                      disabled={submitting}
                       placeholder="Yazı içeriğini girin..."
                       rows={15}
                       className="border-slate-300 focus:border-slate-500 resize-none"
@@ -291,15 +349,26 @@ const AdminPage = () => {
                   <div className="flex space-x-4">
                     <Button 
                       type="submit"
-                      className="bg-slate-800 hover:bg-slate-700"
+                      disabled={submitting}
+                      className="bg-slate-800 hover:bg-slate-700 disabled:opacity-50"
                     >
-                      <Save className="h-4 w-4 mr-2" />
-                      {editingPost ? 'Güncelle' : 'Yayınla'}
+                      {submitting ? (
+                        <div className="flex items-center">
+                          <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                          {editingPost ? 'Güncelleniyor...' : 'Kaydediliyor...'}
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <Save className="h-4 w-4 mr-2" />
+                          {editingPost ? 'Güncelle' : 'Yayınla'}
+                        </div>
+                      )}
                     </Button>
                     <Button 
                       type="button" 
                       variant="outline"
                       onClick={resetForm}
+                      disabled={submitting}
                       className="border-slate-300 text-slate-700 hover:bg-slate-50"
                     >
                       <X className="h-4 w-4 mr-2" />

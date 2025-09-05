@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { contactAPI, handleAPIError } from '../services/api';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { toast } from 'sonner';
-import { Mail, Send, MessageCircle, Phone } from 'lucide-react';
+import { Mail, Send, MessageCircle, Phone, Loader2 } from 'lucide-react';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -26,19 +27,31 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success('Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağım.');
+    
+    try {
+      setIsSubmitting(true);
+      
+      // Submit form data to API
+      const response = await contactAPI.submitMessage(formData);
+      
+      // Show success message
+      toast.success(response.message || 'Mesajınız başarıyla gönderildi!');
+      
+      // Reset form
       setFormData({
         name: '',
         email: '',
         subject: '',
         message: ''
       });
-    }, 1000);
+      
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      const errorMessage = handleAPIError(error, 'Mesaj gönderilirken bir hata oluştu');
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -128,6 +141,7 @@ const ContactPage = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                         required
+                        disabled={isSubmitting}
                         placeholder="Adınız ve soyadınız"
                         className="border-slate-300 focus:border-slate-500"
                       />
@@ -141,6 +155,7 @@ const ContactPage = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
+                        disabled={isSubmitting}
                         placeholder="ornek@email.com"
                         className="border-slate-300 focus:border-slate-500"
                       />
@@ -155,6 +170,7 @@ const ContactPage = () => {
                       type="text"
                       value={formData.subject}
                       onChange={handleInputChange}
+                      disabled={isSubmitting}
                       placeholder="Mesajınızın konusu"
                       className="border-slate-300 focus:border-slate-500"
                     />
@@ -168,6 +184,7 @@ const ContactPage = () => {
                       value={formData.message}
                       onChange={handleInputChange}
                       required
+                      disabled={isSubmitting}
                       placeholder="Mesajınızı buraya yazın..."
                       rows={6}
                       className="border-slate-300 focus:border-slate-500 resize-none"
@@ -177,15 +194,15 @@ const ContactPage = () => {
                   <Button 
                     type="submit" 
                     disabled={isSubmitting}
-                    className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3"
+                    className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <Loader2 className="animate-spin h-4 w-4 mr-2" />
                         Gönderiliyor...
                       </div>
                     ) : (
-                      <div className="flex items-center">
+                      <div className="flex items-center justify-center">
                         <Send className="h-4 w-4 mr-2" />
                         Mesajı Gönder
                       </div>

@@ -1,17 +1,74 @@
-import React from 'react';
-import { mockAboutContent } from '../mock';
+import React, { useState, useEffect } from 'react';
+import { aboutAPI, handleAPIError } from '../services/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Separator } from '../components/ui/separator';
-import { Target, Heart, Users, Lightbulb } from 'lucide-react';
+import { Target, Heart, Users, Lightbulb, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const AboutPage = () => {
+  const [aboutContent, setAboutContent] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const iconMap = {
     0: Target,
     1: Lightbulb,
     2: Users,
     3: Heart
   };
+
+  useEffect(() => {
+    loadAboutContent();
+  }, []);
+
+  const loadAboutContent = async () => {
+    try {
+      setLoading(true);
+      const content = await aboutAPI.getAboutContent();
+      setAboutContent(content);
+    } catch (error) {
+      console.error('Error loading about content:', error);
+      toast.error(handleAPIError(error, 'Hakkımda sayfası yüklenirken bir hata oluştu'));
+      
+      // Use fallback content if API fails
+      setAboutContent({
+        title: "Zirve Hikayem",
+        subtitle: "Her deneyim bir hikaye, her hikaye bir ders",
+        description: `
+          Merhaba, ben Zirve Hikayem! Bu platformda hayatımın farklı dönemlerinde yaşadığım deneyimleri, 
+          girişimcilik yolculuğumda karşılaştığım zorlukları ve başarıları, kişisel gelişim serüvenimde 
+          öğrendiklerimi sizlerle paylaşıyorum.
+          
+          Amacım, kendi hikayelerim aracılığıyla sizlere ilham vermek ve belki de benzer yollardan geçenler 
+          için rehber olmak. Çünkü inanıyorum ki her deneyim bir ders, her ders ise yeni bir başlangıç.
+        `,
+        mission: "İnsanların kendi potansiyellerini keşfetmelerine yardımcı olmak ve başarı yolculuklarında yanlarında olmak.",
+        values: [
+          "Samimi ve dürüst paylaşımlar",
+          "Sürekli öğrenme ve gelişim",
+          "Topluma değer katma",
+          "İlham verici içerik üretimi"
+        ]
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-slate-800 mx-auto" />
+          <p className="text-slate-600">Sayfa yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!aboutContent) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -22,10 +79,10 @@ const AboutPage = () => {
             <span className="text-white font-bold text-4xl">Z</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
-            {mockAboutContent.title}
+            {aboutContent.title}
           </h1>
           <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
-            {mockAboutContent.subtitle}
+            {aboutContent.subtitle}
           </p>
         </div>
 
@@ -35,7 +92,7 @@ const AboutPage = () => {
             <CardTitle className="text-2xl text-slate-800">Hikayem</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {mockAboutContent.description.split('\n\n').map((paragraph, index) => (
+            {aboutContent.description.split('\n\n').map((paragraph, index) => (
               <p key={index} className="text-slate-700 leading-relaxed">
                 {paragraph.trim()}
               </p>
@@ -53,7 +110,7 @@ const AboutPage = () => {
           </CardHeader>
           <CardContent>
             <p className="text-slate-700 leading-relaxed text-lg">
-              {mockAboutContent.mission}
+              {aboutContent.mission}
             </p>
           </CardContent>
         </Card>
@@ -68,8 +125,8 @@ const AboutPage = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {mockAboutContent.values.map((value, index) => {
-                const IconComponent = iconMap[index];
+              {aboutContent.values.map((value, index) => {
+                const IconComponent = iconMap[index] || Target;
                 return (
                   <div key={index} className="flex items-start space-x-3 p-4 bg-slate-50 rounded-lg">
                     <IconComponent className="h-6 w-6 text-slate-600 mt-0.5 flex-shrink-0" />
