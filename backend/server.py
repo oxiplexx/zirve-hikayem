@@ -249,7 +249,7 @@ async def get_contact_messages(status: Optional[str] = None):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.put("/contact/{message_id}/status", response_model=MessageResponse)
-async def update_message_status(message_id: str, status: str = Query(..., pattern="^(new|read|replied)$")):
+async def update_message_status(message_id: str, status: str):
     """Update contact message status"""
     try:
         updated = await database.update_message_status(message_id, status)
