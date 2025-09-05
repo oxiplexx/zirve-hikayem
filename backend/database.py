@@ -2,7 +2,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime
 from typing import List, Optional
 import os
-from .models import BlogPost, ContactMessage, AboutContent
+from models import BlogPost, ContactMessage, AboutContent
 
 class Database:
     def __init__(self):
