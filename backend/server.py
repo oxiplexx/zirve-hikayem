@@ -230,7 +230,7 @@ async def create_contact_message(message_create: ContactMessageCreate):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.get("/contact", response_model=List[ContactMessage])
-async def get_contact_messages(status: Optional[str] = Query(None, description="Filter by message status")):
+async def get_contact_messages(status: Optional[str] = None):
     """Get all contact messages (admin only)"""
     try:
         messages_data = await database.get_contact_messages(status=status)
