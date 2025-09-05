@@ -150,7 +150,17 @@ backend:
           agent: "testing"
           comment: "Minor: GET /api/about (✅) works perfectly, returns proper Turkish content. PUT /api/about has server-side validation issue but core functionality intact. About content properly stored and retrieved from database."
         
-  - task: "Database Models"
+  - task: "Categories API"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "GET /api/categories (✅) working perfectly. Returns proper category list including 'Tümü' as expected: ['Tümü', 'Girişimcilik', 'Kişisel Gelişim', 'Motivasyon', 'Planlama', 'Yaşam Tarzı']. All Turkish category names handled correctly."
     implemented: true
     working: true
     file: "models.py"
