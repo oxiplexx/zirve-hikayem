@@ -7,8 +7,8 @@ import logging
 from datetime import datetime
 from typing import List, Optional
 
-from .database import database
-from .models import (
+from database import database
+from models import (
     BlogPost, BlogPostCreate, BlogPostUpdate,
     ContactMessage, ContactMessageCreate,
     AboutContent, AboutContentUpdate,
