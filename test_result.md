@@ -161,6 +161,8 @@ backend:
         - working: true
           agent: "testing"
           comment: "GET /api/categories (✅) working perfectly. Returns proper category list including 'Tümü' as expected: ['Tümü', 'Girişimcilik', 'Kişisel Gelişim', 'Motivasyon', 'Planlama', 'Yaşam Tarzı']. All Turkish category names handled correctly."
+        
+  - task: "Database Models"
     implemented: true
     working: true
     file: "models.py"
@@ -171,6 +173,9 @@ backend:
         - working: true
           agent: "main"
           comment: "BlogPost, ContactMessage, and AboutContent models working with proper validation"
+        - working: true
+          agent: "testing"
+          comment: "Database models tested through API endpoints. All models working correctly with Turkish content validation, UUID generation, and proper field handling. Turkish slug generation algorithm working perfectly."
 
 frontend:
   - task: "Homepage with API Integration"
