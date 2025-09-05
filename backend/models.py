@@ -75,7 +75,7 @@ class BlogPost(BaseModel):
 # Contact Models
 class ContactMessageCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
-    email: str = Field(..., regex=r'^[^@]+@[^@]+\.[^@]+$')
+    email: str = Field(..., pattern=r'^[^@]+@[^@]+\.[^@]+$')
     subject: Optional[str] = Field(None, max_length=200)
     message: str = Field(..., min_length=1, max_length=2000)
 
