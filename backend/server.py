@@ -1,10 +1,11 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Query
+from fastapi import FastAPI, APIRouter, HTTPException, Query, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from pathlib import Path
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 from database import database
@@ -13,6 +14,10 @@ from models import (
     ContactMessage, ContactMessageCreate,
     AboutContent, AboutContentUpdate,
     PostsResponse, MessageResponse
+)
+from auth import (
+    authenticate_user, create_access_token, get_current_user, require_admin_role,
+    UserLogin, Token, UserResponse, ACCESS_TOKEN_EXPIRE_MINUTES
 )
 
 ROOT_DIR = Path(__file__).parent
@@ -23,6 +28,9 @@ app = FastAPI(title="Zirve Hikayem API", version="1.0.0")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
+
+# Security
+security = HTTPBearer()
 
 # CORS middleware
 app.add_middleware(
@@ -51,18 +59,71 @@ async def shutdown_db_client():
     await database.disconnect()
     logger.info("Disconnected from MongoDB")
 
+# Authentication dependency
+async def get_current_admin_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get current authenticated admin user"""
+    token = credentials.credentials
+    user = get_current_user(token)
+    return require_admin_role(user)
+
 # Root endpoint
 @api_router.get("/")
 async def root():
     return {"message": "Zirve Hikayem API", "version": "1.0.0"}
 
-# Blog Posts Endpoints
+# Authentication Endpoints
+@api_router.post("/auth/login", response_model=Token)
+async def login(user_login: UserLogin):
+    """Admin login endpoint"""
+    user = authenticate_user(user_login.username, user_login.password)
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user["username"]}, expires_delta=access_token_expires
+    )
+    
+    user_response = UserResponse(
+        username=user["username"],
+        email=user["email"],
+        full_name=user["full_name"],
+        role=user["role"]
+    )
+    
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        user=user_response
+    )
+
+@api_router.post("/auth/verify")
+async def verify_auth(current_user: dict = Depends(get_current_admin_user)):
+    """Verify authentication token"""
+    user_response = UserResponse(
+        username=current_user["username"],
+        email=current_user["email"],
+        full_name=current_user["full_name"],
+        role=current_user["role"]
+    )
+    return {"user": user_response, "message": "Token is valid"}
+
+@api_router.post("/auth/logout")
+async def logout():
+    """Logout endpoint (client should remove token)"""
+    return {"message": "Successfully logged out"}
+
+# Blog Posts Endpoints (Protected)
 @api_router.get("/posts", response_model=List[BlogPost])
 async def get_posts(
     category: Optional[str] = None,
     featured: Optional[bool] = None
 ):
-    """Get all blog posts with optional filtering"""
+    """Get all blog posts with optional filtering (Public endpoint)"""
     try:
         posts_data = await database.get_posts(
             category=category,
@@ -71,7 +132,6 @@ async def get_posts(
         
         posts = []
         for post_data in posts_data:
-            # Convert MongoDB document to BlogPost model
             post_dict = dict(post_data)
             if '_id' in post_dict:
                 del post_dict['_id']
@@ -84,19 +144,18 @@ async def get_posts(
 
 @api_router.get("/posts/featured", response_model=List[BlogPost])
 async def get_featured_posts():
-    """Get only featured blog posts"""
+    """Get only featured blog posts (Public endpoint)"""
     return await get_posts(featured=True)
 
 @api_router.get("/posts/{slug}", response_model=BlogPost)
 async def get_post_by_slug(slug: str):
-    """Get a single blog post by slug"""
+    """Get a single blog post by slug (Public endpoint)"""
     try:
         post_data = await database.get_post_by_slug(slug)
         
         if not post_data:
             raise HTTPException(status_code=404, detail="Post not found")
         
-        # Convert MongoDB document to BlogPost model
         post_dict = dict(post_data)
         if '_id' in post_dict:
             del post_dict['_id']
@@ -109,19 +168,18 @@ async def get_post_by_slug(slug: str):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.post("/posts", response_model=BlogPost)
-async def create_post(post_create: BlogPostCreate):
-    """Create a new blog post"""
+async def create_post(
+    post_create: BlogPostCreate, 
+    current_user: dict = Depends(get_current_admin_user)
+):
+    """Create a new blog post (Admin only)"""
     try:
-        # Generate slug and read time
         slug = BlogPost.generate_slug(post_create.title)
         read_time = BlogPost.calculate_read_time(post_create.content)
         
-        # Check if slug already exists
         if await database.slug_exists(slug):
-            # Add timestamp to make slug unique
             slug = f"{slug}-{int(datetime.now().timestamp())}"
         
-        # Create post data
         post_data = post_create.dict()
         post_data.update({
             "slug": slug,
@@ -129,13 +187,9 @@ async def create_post(post_create: BlogPostCreate):
             "publishDate": datetime.now().strftime("%Y-%m-%d")
         })
         
-        # Create BlogPost instance to generate ID
         blog_post = BlogPost(**post_data)
-        
-        # Save to database
         created_post_data = await database.create_post(blog_post.dict())
         
-        # Convert back to BlogPost model
         post_dict = dict(created_post_data)
         if '_id' in post_dict:
             del post_dict['_id']
@@ -146,35 +200,33 @@ async def create_post(post_create: BlogPostCreate):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.put("/posts/{post_id}", response_model=BlogPost)
-async def update_post(post_id: str, post_update: BlogPostUpdate):
-    """Update an existing blog post"""
+async def update_post(
+    post_id: str, 
+    post_update: BlogPostUpdate,
+    current_user: dict = Depends(get_current_admin_user)
+):
+    """Update an existing blog post (Admin only)"""
     try:
-        # Get current post
         current_post = await database.get_post_by_id(post_id)
         if not current_post:
             raise HTTPException(status_code=404, detail="Post not found")
         
-        # Prepare update data
         update_data = {k: v for k, v in post_update.dict().items() if v is not None}
         
-        # Update slug if title changed
         if "title" in update_data:
             new_slug = BlogPost.generate_slug(update_data["title"])
             if await database.slug_exists(new_slug, exclude_id=post_id):
                 new_slug = f"{new_slug}-{int(datetime.now().timestamp())}"
             update_data["slug"] = new_slug
         
-        # Update read time if content changed
         if "content" in update_data:
             update_data["readTime"] = BlogPost.calculate_read_time(update_data["content"])
         
-        # Update post
         updated_post_data = await database.update_post(post_id, update_data)
         
         if not updated_post_data:
             raise HTTPException(status_code=404, detail="Post not found")
         
-        # Convert back to BlogPost model
         post_dict = dict(updated_post_data)
         if '_id' in post_dict:
             del post_dict['_id']
@@ -187,8 +239,11 @@ async def update_post(post_id: str, post_update: BlogPostUpdate):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.delete("/posts/{post_id}", response_model=MessageResponse)
-async def delete_post(post_id: str):
-    """Delete a blog post"""
+async def delete_post(
+    post_id: str,
+    current_user: dict = Depends(get_current_admin_user)
+):
+    """Delete a blog post (Admin only)"""
     try:
         deleted = await database.delete_post(post_id)
         
@@ -202,7 +257,7 @@ async def delete_post(post_id: str):
         logger.error(f"Error deleting post {post_id}: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-# Categories Endpoint
+# Categories Endpoint (Public)
 @api_router.get("/categories", response_model=List[str])
 async def get_categories():
     """Get all unique categories"""
@@ -216,12 +271,9 @@ async def get_categories():
 # Contact Endpoints
 @api_router.post("/contact", response_model=MessageResponse)
 async def create_contact_message(message_create: ContactMessageCreate):
-    """Submit a contact form message"""
+    """Submit a contact form message (Public endpoint)"""
     try:
-        # Create ContactMessage instance
         contact_message = ContactMessage(**message_create.dict())
-        
-        # Save to database
         await database.create_contact_message(contact_message.dict())
         
         return MessageResponse(message="Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağım.")
@@ -230,14 +282,16 @@ async def create_contact_message(message_create: ContactMessageCreate):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.get("/contact", response_model=List[ContactMessage])
-async def get_contact_messages(status: Optional[str] = None):
-    """Get all contact messages (admin only)"""
+async def get_contact_messages(
+    status: Optional[str] = None,
+    current_user: dict = Depends(get_current_admin_user)
+):
+    """Get all contact messages (Admin only)"""
     try:
         messages_data = await database.get_contact_messages(status=status)
         
         messages = []
         for message_data in messages_data:
-            # Convert MongoDB document to ContactMessage model
             message_dict = dict(message_data)
             if '_id' in message_dict:
                 del message_dict['_id']
@@ -249,8 +303,12 @@ async def get_contact_messages(status: Optional[str] = None):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.put("/contact/{message_id}/status", response_model=MessageResponse)
-async def update_message_status(message_id: str, status: str):
-    """Update contact message status"""
+async def update_message_status(
+    message_id: str, 
+    status: str,
+    current_user: dict = Depends(get_current_admin_user)
+):
+    """Update contact message status (Admin only)"""
     try:
         updated = await database.update_message_status(message_id, status)
         
@@ -267,12 +325,11 @@ async def update_message_status(message_id: str, status: str):
 # About Content Endpoints
 @api_router.get("/about", response_model=AboutContent)
 async def get_about_content():
-    """Get about page content"""
+    """Get about page content (Public endpoint)"""
     try:
         content_data = await database.get_about_content()
         
         if not content_data:
-            # Return default content if none exists
             default_content = AboutContent(
                 description="""
                     Merhaba, ben Zirve Hikayem! Bu platformda hayatımın farklı dönemlerinde yaşadığım deneyimleri, 
@@ -292,7 +349,6 @@ async def get_about_content():
             )
             return default_content
         
-        # Convert MongoDB document to AboutContent model
         content_dict = dict(content_data)
         if '_id' in content_dict:
             del content_dict['_id']
@@ -303,30 +359,27 @@ async def get_about_content():
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @api_router.put("/about", response_model=AboutContent)
-async def update_about_content(content_update: AboutContentUpdate):
-    """Update about page content (admin only)"""
+async def update_about_content(
+    content_update: AboutContentUpdate,
+    current_user: dict = Depends(get_current_admin_user)
+):
+    """Update about page content (Admin only)"""
     try:
-        # Get current content
         current_content = await database.get_about_content()
         
-        # Prepare update data
         update_data = {k: v for k, v in content_update.dict().items() if v is not None}
         
         if current_content:
-            # Merge with existing content
             current_dict = dict(current_content)
             current_dict.update(update_data)
             if '_id' in current_dict:
                 del current_dict['_id']
         else:
-            # Create new content with defaults
             current_dict = AboutContent().dict()
             current_dict.update(update_data)
         
-        # Update in database
         updated_content_data = await database.update_about_content(current_dict)
         
-        # Convert back to AboutContent model
         content_dict = dict(updated_content_data)
         if '_id' in content_dict:
             del content_dict['_id']
