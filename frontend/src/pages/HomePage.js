@@ -69,7 +69,7 @@ const HomePage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-slate-800 mx-auto" />
+          <Loader2 className="h-12 w-12 animate-spin mx-auto zirve-text-gradient" />
           <p className="text-slate-600">Sayfa yükleniyor...</p>
         </div>
       </div>
@@ -79,22 +79,24 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section className="bg-white border-b border-gray-100 relative overflow-hidden">
+        <div className="absolute inset-0 zirve-gradient opacity-5"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
           <div className="text-center space-y-6">
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-800 leading-tight">
-              Zirve <span className="text-slate-600">Hikayem</span>
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+              <span className="zirve-hero-title">Zirve</span>{' '}
+              <span className="text-slate-800">Hikayem</span>
             </h1>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
               Girişimcilik yolculuğum, kişisel gelişim deneyimlerim ve hayatın her alanından 
               öğrendiklerimi paylaştığım kişisel blog platformum.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-slate-800 hover:bg-slate-700 text-white px-8">
+              <Button size="lg" className="zirve-button-primary px-8">
                 Blog Yazılarını Keşfet
               </Button>
               <Link to="/about">
-                <Button variant="outline" size="lg" className="border-slate-300 text-slate-700 hover:bg-slate-50 px-8">
+                <Button variant="outline" size="lg" className="border-purple-300 text-purple-700 hover:bg-purple-50 px-8">
                   Hakkımda
                 </Button>
               </Link>
@@ -108,15 +110,15 @@ const HomePage = () => {
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center space-x-2 mb-8">
-              <Star className="h-6 w-6 text-amber-500" />
+              <Star className="h-6 w-6 text-orange-500" />
               <h2 className="text-3xl font-bold text-slate-800">Öne Çıkan Yazılar</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredPosts.map((post) => (
-                <Card key={post.id} className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm">
+                <Card key={post.id} className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm zirve-card">
                   <CardHeader className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-200">
+                      <Badge className="zirve-featured-badge">
                         {post.category}
                       </Badge>
                       <div className="flex items-center text-sm text-slate-500">
@@ -124,7 +126,7 @@ const HomePage = () => {
                         {post.readTime}
                       </div>
                     </div>
-                    <CardTitle className="text-xl group-hover:text-slate-600 transition-colors duration-200">
+                    <CardTitle className="text-xl group-hover:text-purple-600 transition-colors duration-200">
                       {post.title}
                     </CardTitle>
                     <CardDescription className="text-slate-600 leading-relaxed">
@@ -135,7 +137,7 @@ const HomePage = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-500">{post.publishDate}</span>
                       <Link to={`/post/${post.slug}`}>
-                        <Button variant="ghost" size="sm" className="text-slate-700 hover:text-slate-900 p-0">
+                        <Button variant="ghost" size="sm" className="text-purple-700 hover:text-purple-900 p-0">
                           Devamını Oku
                           <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
                         </Button>
@@ -162,8 +164,8 @@ const HomePage = () => {
                 disabled={postsLoading}
                 className={`transition-all duration-200 ${
                   selectedCategory === category 
-                    ? 'bg-slate-800 text-white hover:bg-slate-700' 
-                    : 'border-slate-300 text-slate-700 hover:bg-slate-50'
+                    ? 'zirve-button-primary' 
+                    : 'border-purple-300 text-purple-700 hover:bg-purple-50'
                 }`}
               >
                 {category}
@@ -181,7 +183,7 @@ const HomePage = () => {
               {selectedCategory === 'Tümü' ? 'Tüm Yazılar' : `${selectedCategory} Yazıları`}
             </h2>
             {postsLoading && (
-              <Loader2 className="h-6 w-6 animate-spin text-slate-600" />
+              <Loader2 className="h-6 w-6 animate-spin zirve-text-gradient" />
             )}
           </div>
           
@@ -191,7 +193,7 @@ const HomePage = () => {
                 <Card key={index} className="border-0 shadow-sm">
                   <CardHeader className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="h-6 w-20 bg-slate-200 rounded animate-pulse"></div>
+                      <div className="h-6 w-20 bg-purple-100 rounded animate-pulse"></div>
                       <div className="h-4 w-16 bg-slate-200 rounded animate-pulse"></div>
                     </div>
                     <div className="h-6 w-3/4 bg-slate-200 rounded animate-pulse"></div>
@@ -206,10 +208,10 @@ const HomePage = () => {
           ) : posts.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {posts.map((post) => (
-                <Card key={post.id} className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm">
+                <Card key={post.id} className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm zirve-card">
                   <CardHeader className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Badge variant="outline" className="border-slate-300 text-slate-700">
+                      <Badge variant="outline" className="border-purple-300 text-purple-700">
                         {post.category}
                       </Badge>
                       <div className="flex items-center text-sm text-slate-500">
@@ -217,7 +219,7 @@ const HomePage = () => {
                         {post.readTime}
                       </div>
                     </div>
-                    <CardTitle className="text-xl group-hover:text-slate-600 transition-colors duration-200">
+                    <CardTitle className="text-xl group-hover:text-purple-600 transition-colors duration-200">
                       {post.title}
                     </CardTitle>
                     <CardDescription className="text-slate-600 leading-relaxed">
@@ -228,7 +230,7 @@ const HomePage = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-500">{post.publishDate}</span>
                       <Link to={`/post/${post.slug}`}>
-                        <Button variant="ghost" size="sm" className="text-slate-700 hover:text-slate-900 p-0">
+                        <Button variant="ghost" size="sm" className="text-purple-700 hover:text-purple-900 p-0">
                           Devamını Oku
                           <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
                         </Button>

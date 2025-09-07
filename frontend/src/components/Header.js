@@ -21,11 +21,13 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">Z</span>
-            </div>
-            <span className="text-xl font-bold text-slate-800">Zirve Hikayem</span>
+          <Link to="/" className="zirve-logo-container">
+            <img 
+              src="https://customer-assets.emergentagent.com/job_zirvehikayeleri/artifacts/u9h2xa09_Logo1.png" 
+              alt="Zirve Hikayem Logo"
+              className="zirve-logo-image"
+            />
+            <span className="text-xl font-bold zirve-text-gradient">Zirve Hikayem</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -34,10 +36,10 @@ const Header = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${
+                className={`px-3 py-2 text-sm font-medium transition-all duration-200 ${
                   isActive(item.href)
-                    ? 'text-slate-800 border-b-2 border-slate-800'
-                    : 'text-slate-600 hover:text-slate-800 hover:border-b-2 hover:border-slate-300'
+                    ? 'zirve-nav-active border-b-2'
+                    : 'text-slate-600 hover:text-purple-600 hover:border-b-2 hover:border-purple-300'
                 }`}
               >
                 {item.name}
@@ -51,7 +53,7 @@ const Header = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-slate-600 hover:text-slate-800"
+              className="text-slate-600 hover:text-purple-600"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -69,8 +71,8 @@ const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                   className={`px-3 py-2 text-sm font-medium transition-colors duration-200 rounded-md ${
                     isActive(item.href)
-                      ? 'text-slate-800 bg-slate-100'
-                      : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
+                      ? 'text-purple-600 bg-purple-50'
+                      : 'text-slate-600 hover:text-purple-600 hover:bg-purple-50'
                   }`}
                 >
                   {item.name}
