@@ -75,3 +75,7 @@ frontend/public/google-analytics-setup.md-e
 # Environment files
 *.env
 *.env.*
+-e 
+# Environment files
+*.env
+*.env.*
