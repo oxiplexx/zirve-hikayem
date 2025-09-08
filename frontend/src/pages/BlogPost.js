@@ -29,6 +29,9 @@ const BlogPost = () => {
       const postData = await blogAPI.getPostBySlug(slug);
       setPost(postData);
       
+      // Track blog post read
+      trackBlogRead(postData.title, postData.category, postData.readTime);
+      
       // Load related posts (same category, excluding current post)
       const allPosts = await blogAPI.getPosts(postData.category);
       const related = allPosts
