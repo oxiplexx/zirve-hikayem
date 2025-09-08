@@ -83,8 +83,11 @@ const HomePage = () => {
         <div className="absolute inset-0 zirve-gradient opacity-5"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative">
           <div className="text-center space-y-8">
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight text-slate-800 max-w-4xl mx-auto">
-              <span className="zirve-hero-title">Zirve Hikayem</span> – Yeniden Başlamak, Daha Güçlü Yükselmek
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight text-slate-800 max-w-4xl mx-auto text-center">
+              <div className="zirve-hero-title mb-2">Zirve Hikayem</div>
+              <div className="text-3xl md:text-4xl text-slate-800">
+                Yeniden Başlamak, Daha Güçlü Yükselmek
+              </div>
             </h1>
             
             <div className="max-w-4xl mx-auto space-y-6 text-lg text-slate-700 leading-relaxed">
