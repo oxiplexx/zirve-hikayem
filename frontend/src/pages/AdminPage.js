@@ -80,10 +80,12 @@ const AdminPage = () => {
       if (editingPost) {
         // Update existing post
         await blogAPI.updatePost(editingPost.id, postData);
+        trackAdminAction('post_updated', editingPost.title);
         toast.success('Yazı başarıyla güncellendi!');
       } else {
         // Create new post
         await blogAPI.createPost(postData);
+        trackAdminAction('post_created', postData.title);
         toast.success('Yeni yazı başarıyla eklendi!');
       }
 
