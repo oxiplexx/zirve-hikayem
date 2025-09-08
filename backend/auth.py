@@ -19,9 +19,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 ADMIN_USERS = {
     "admin": {
         "username": "admin",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",  # "admin123"
-        "email": "admin@zirvehikayem.com",
-        "full_name": "Zirve Hikayem Admin",
+        "hashed_password": "$2b$12$rWbwZohqD.UedM6XZXgv..J/Ni.6oJtyTq7cyBTzI1hROzR86dsBW",  # "ZirveHikayem2024!"
+        "email": "zirvehikayem@gmail.com",
+        "full_name": "Aydın Kocatürk",
         "is_active": True,
         "role": "admin"
     }
