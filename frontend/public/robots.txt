@@ -1,0 +1,36 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://zirvehikayem.com/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Block admin pages
+Disallow: /admin
+Disallow: /login
+
+# Allow important pages
+Allow: /
+Allow: /about
+Allow: /contact
+Allow: /post/*
+
+# Block unnecessary files
+Disallow: /*.js$
+Disallow: /*.css$
+Disallow: /*.json$
+
+# SEO optimization
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
