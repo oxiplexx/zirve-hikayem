@@ -1,0 +1,34 @@
+{
+  "name": "zirve-hikayem",
+  "version": "1.0.0",
+  "description": "Zirve Hikayem - Yeniden Başlamak, Daha Güçlü Yükselmek",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && yarn start",
+    "dev:backend": "cd backend && python -m uvicorn server:app --reload --host 0.0.0.0 --port 8001",
+    "build": "cd frontend && yarn build",
+    "start": "cd frontend && yarn start",
+    "install:frontend": "cd frontend && yarn install",
+    "install:backend": "cd backend && pip install -r requirements.txt"
+  },
+  "keywords": [
+    "blog",
+    "personal-development", 
+    "motivation",
+    "entrepreneurship",
+    "turkish-blog",
+    "zirve-hikayem",
+    "aydin-kocaturk"
+  ],
+  "author": "Aydın Kocatürk",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aydinkocaturk/zirve-hikayem.git"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "python": ">=3.8.0"
+  }
+}
