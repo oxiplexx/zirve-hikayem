@@ -67,6 +67,9 @@ const ContactPage = () => {
       // Submit form data to API
       const response = await contactAPI.submitMessage(formData);
       
+      // Track successful form submission
+      trackFormSubmission('contact_form', true);
+      
       // Show success message
       toast.success(response.message || 'Mesajınız başarıyla gönderildi!');
       
@@ -80,6 +83,10 @@ const ContactPage = () => {
       
     } catch (error) {
       console.error('Error submitting contact form:', error);
+      
+      // Track failed form submission
+      trackFormSubmission('contact_form', false);
+      
       const errorMessage = handleAPIError(error, 'Mesaj gönderilirken bir hata oluştu');
       toast.error(errorMessage);
     } finally {
