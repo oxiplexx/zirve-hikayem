@@ -35,7 +35,7 @@ const AboutPage = () => {
         title: "Zirve Hikayem",
         subtitle: "Her deneyim bir hikaye, her hikaye bir ders",
         description: `
-          Merhaba, ben Zirve Hikayem! Bu platformda hayatımın farklı dönemlerinde yaşadığım deneyimleri, 
+          Merhaba, ben Aydın Kocatürk! Bu platformda hayatımın farklı dönemlerinde yaşadığım deneyimleri, 
           girişimcilik yolculuğumda karşılaştığım zorlukları ve başarıları, kişisel gelişim serüvenimde 
           öğrendiklerimi sizlerle paylaşıyorum.
           
