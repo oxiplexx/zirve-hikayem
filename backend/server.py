@@ -332,7 +332,7 @@ async def get_about_content():
         if not content_data:
             default_content = AboutContent(
                 description="""
-                    Merhaba, ben Zirve Hikayem! Bu platformda hayatımın farklı dönemlerinde yaşadığım deneyimleri, 
+                    Merhaba, ben Aydın Kocatürk! Bu platformda hayatımın farklı dönemlerinde yaşadığım deneyimleri, 
                     girişimcilik yolculuğumda karşılaştığım zorlukları ve başarıları, kişisel gelişim serüvenimde 
                     öğrendiklerimi sizlerle paylaşıyorum.
                     
