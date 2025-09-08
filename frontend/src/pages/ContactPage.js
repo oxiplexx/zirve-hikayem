@@ -6,7 +6,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { toast } from 'sonner';
-import { Mail, Send, MessageCircle, Phone, Loader2 } from 'lucide-react';
+import { Mail, Send, MessageCircle, Phone, Loader2, Instagram, Youtube, Twitter, Linkedin, ExternalLink } from 'lucide-react';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +16,37 @@ const ContactPage = () => {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const socialLinks = [
+    {
+      name: 'Instagram',
+      icon: Instagram,
+      url: 'https://instagram.com/zirvehikayem',
+      handle: '@zirvehikayem',
+      description: 'Günlük motivasyon ve ilham paylaşımları'
+    },
+    {
+      name: 'YouTube',
+      icon: Youtube,
+      url: 'https://youtube.com/@zirvehikayem',
+      handle: '@zirvehikayem',
+      description: 'Video içerikler ve derinlemesine konuşmalar'
+    },
+    {
+      name: 'Twitter',
+      icon: Twitter,
+      url: 'https://twitter.com/Aydinkocaturk',
+      handle: '@Aydinkocaturk',
+      description: 'Güncel düşünceler ve sosyolojik yorumlar'
+    },
+    {
+      name: 'LinkedIn',
+      icon: Linkedin,
+      url: 'https://linkedin.com/in/aydinkocaturk',
+      handle: 'Aydın Kocatürk',
+      description: 'Profesyonel içerikler ve iş dünyası paylaşımları'
+    }
+  ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -86,20 +117,34 @@ const ContactPage = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-xl text-slate-800 flex items-center">
-                  <MessageCircle className="h-5 w-5 mr-2" />
-                  Sosyal Medya
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-600">@zirvehikayem</p>
-                <p className="text-sm text-slate-500 mt-2">
-                  Günlük paylaşımlarım için takip edebilirsiniz
-                </p>
-              </CardContent>
-            </Card>
+            {/* Social Media Cards */}
+            {socialLinks.map((social) => {
+              const IconComponent = social.icon;
+              return (
+                <Card key={social.name} className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-slate-800 flex items-center">
+                      <IconComponent className="h-5 w-5 mr-2 text-purple-600" />
+                      {social.name}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <a
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-purple-600 hover:text-purple-800 font-medium mb-2 group"
+                    >
+                      {social.handle}
+                      <ExternalLink className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
+                    </a>
+                    <p className="text-sm text-slate-500">
+                      {social.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
 
             <Card className="border-0 shadow-sm">
               <CardHeader>
@@ -244,11 +289,11 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-slate-800 mb-2">
-                    Misafir yazar olarak yazı gönderebilir miyim?
+                    Hangi sosyal medya platformunda daha aktifsiniz?
                   </h3>
                   <p className="text-slate-600">
-                    Kaliteli ve özgün içerikler için misafir yazar başvurularını 
-                    değerlendiriyorum. Önce benimle iletişime geçin.
+                    Instagram'da günlük paylaşımlar, YouTube'da derinlemesine video içerikler, 
+                    Twitter'da güncel yorumlar ve LinkedIn'de profesyonel içerikler paylaşıyorum.
                   </p>
                 </div>
               </div>
