@@ -81,23 +81,62 @@ const HomePage = () => {
       {/* Hero Section */}
       <section className="bg-white border-b border-gray-100 relative overflow-hidden">
         <div className="absolute inset-0 zirve-gradient opacity-5"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
-          <div className="text-center space-y-6">
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-              <span className="zirve-hero-title">Zirve</span>{' '}
-              <span className="text-slate-800">Hikayem</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative">
+          <div className="text-center space-y-8">
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight text-slate-800 max-w-4xl mx-auto">
+              <span className="zirve-hero-title">Zirve Hikayem</span> – Yeniden Başlamak, Daha Güçlü Yükselmek
             </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-              Girişimcilik yolculuğum, kişisel gelişim deneyimlerim ve hayatın her alanından 
-              öğrendiklerimi paylaştığım kişisel blog platformum.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            
+            <div className="max-w-4xl mx-auto space-y-6 text-lg text-slate-700 leading-relaxed">
+              <p>
+                Hayat, inişleri ve çıkışlarıyla bize sürekli yeni dersler verir. Bazen düşeriz, bazen kaybederiz; 
+                ama asıl önemli olan yeniden ayağa kalkabilmek ve yolumuza daha güçlü devam edebilmektir.
+              </p>
+              
+              <p>
+                <strong>Zirve Hikayem</strong>, tam da bu noktada doğdu. Burada;
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto text-base">
+                <div className="flex items-center space-x-3 p-4 bg-purple-50/50 rounded-lg border border-purple-100">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span className="text-slate-700">İlham veren yaşam hikâyeleri</span>
+                </div>
+                <div className="flex items-center space-x-3 p-4 bg-pink-50/50 rounded-lg border border-pink-100">
+                  <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                  <span className="text-slate-700">Kişisel gelişim ve motivasyon içerikleri</span>
+                </div>
+                <div className="flex items-center space-x-3 p-4 bg-orange-50/50 rounded-lg border border-orange-100">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span className="text-slate-700">Güncel sosyolojik yorumlar</span>
+                </div>
+                <div className="flex items-center space-x-3 p-4 bg-purple-50/50 rounded-lg border border-purple-100">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span className="text-slate-700">Yapay zekâ ile üretilen yenilikçi fikirler</span>
+                </div>
+              </div>
+              
+              <p className="text-slate-700">
+                <strong>Amacımız</strong>, yalnızca bilgi vermek değil; aynı zamanda sizin de kendi zirve hikâyenizi yazmanıza ilham olmak.
+              </p>
+              
+              <div className="p-6 bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 rounded-xl border border-purple-100 max-w-2xl mx-auto">
+                <p className="text-xl font-medium text-slate-800 mb-2">
+                  🌟 Senin yolculuğun, senin zirven.
+                </p>
+                <p className="text-slate-700">
+                  Burada attığın her adım, seni daha güçlü bir geleceğe taşıyacak.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button size="lg" className="zirve-button-primary px-8">
-                Blog Yazılarını Keşfet
+                Hikâyelerimi Keşfet
               </Button>
               <Link to="/about">
                 <Button variant="outline" size="lg" className="border-purple-300 text-purple-700 hover:bg-purple-50 px-8">
-                  Hakkımda
+                  Hikâyemi Öğren
                 </Button>
               </Link>
             </div>
