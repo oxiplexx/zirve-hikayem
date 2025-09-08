@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import GoogleAnalytics from "./components/GoogleAnalytics";
+import CookieConsent from "./components/CookieConsent";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
@@ -18,6 +20,7 @@ function App() {
     <div className="App">
       <AuthProvider>
         <BrowserRouter>
+          <GoogleAnalytics />
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={
@@ -61,6 +64,7 @@ function App() {
               </ProtectedRoute>
             } />
           </Routes>
+          <CookieConsent />
           <Toaster position="top-right" />
         </BrowserRouter>
       </AuthProvider>
