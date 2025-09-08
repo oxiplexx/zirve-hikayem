@@ -131,6 +131,7 @@ const AdminPage = () => {
     if (window.confirm(`"${post.title}" yazısını silmek istediğinizden emin misiniz?`)) {
       try {
         await blogAPI.deletePost(post.id);
+        trackAdminAction('post_deleted', post.title);
         toast.success('Yazı başarıyla silindi!');
         await loadPosts();
       } catch (error) {
