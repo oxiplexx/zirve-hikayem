@@ -71,4 +71,7 @@ __pycache__/
 
 # Local development
 backend/seed_data.py
-frontend/public/google-analytics-setup.md
+frontend/public/google-analytics-setup.md-e 
+# Environment files
+*.env
+*.env.*
