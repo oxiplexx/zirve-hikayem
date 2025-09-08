@@ -79,7 +79,7 @@ const ContactPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-600">info@zirvehikayem.com</p>
+                <p className="text-slate-600">zirvehikayem@gmail.com</p>
                 <p className="text-sm text-slate-500 mt-2">
                   Genellikle 24 saat içinde yanıtlarım
                 </p>
