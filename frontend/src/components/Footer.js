@@ -55,11 +55,11 @@ const Footer = () => {
             <h3 className="font-semibold text-lg text-orange-200">İletişim</h3>
             <div className="space-y-3">
               <a 
-                href="mailto:info@zirvehikayem.com"
+                href="mailto:zirvehikayem@gmail.com"
                 className="flex items-center space-x-2 text-pink-100 hover:text-white transition-colors duration-200 text-sm"
               >
                 <Mail className="h-4 w-4" />
-                <span>info@zirvehikayem.com</span>
+                <span>zirvehikayem@gmail.com</span>
               </a>
               <a 
                 href="#"
