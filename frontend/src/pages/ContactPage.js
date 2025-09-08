@@ -142,6 +142,7 @@ const ContactPage = () => {
                       href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => trackSocialClick(social.name, 'contact_page')}
                       className="flex items-center text-purple-600 hover:text-purple-800 font-medium mb-2 group"
                     >
                       {social.handle}
