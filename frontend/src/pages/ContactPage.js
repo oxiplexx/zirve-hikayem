@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { contactAPI, handleAPIError } from '../services/api';
+import { trackFormSubmission } from '../components/GoogleAnalytics';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -7,6 +8,7 @@ import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { toast } from 'sonner';
 import { Mail, Send, MessageCircle, Phone, Loader2, Instagram, Youtube, Twitter, Linkedin, ExternalLink } from 'lucide-react';
+import { trackSocialClick } from '../components/GoogleAnalytics';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
