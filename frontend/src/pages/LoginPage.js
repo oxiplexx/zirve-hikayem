@@ -124,10 +124,13 @@ const LoginPage = () => {
 
             {/* Demo Credentials Info */}
             <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
-              <h4 className="text-sm font-medium text-purple-800 mb-2">Demo Giriş Bilgileri:</h4>
+              <h4 className="text-sm font-medium text-purple-800 mb-2">Admin Giriş Bilgileri:</h4>
               <div className="text-sm text-purple-700 space-y-1">
                 <p><strong>Kullanıcı Adı:</strong> admin</p>
-                <p><strong>Şifre:</strong> admin123</p>
+                <p><strong>Şifre:</strong> ZirveHikayem2024!</p>
+                <p className="text-xs text-purple-600 mt-2">
+                  ⚠️ Bu bilgileri güvenli bir yerde saklayın
+                </p>
               </div>
             </div>
           </CardContent>
